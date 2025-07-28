@@ -1,6 +1,24 @@
 # EMG_Prosthetic_Project
 Developing gesture classifying agent to drive robotic porsthetics
 
+Data information:
+1. Sampling Rate: 2000Hz
+2. Gesture Durations: 6 seconds
+3. Total Participants: 40
+4. Total gesture repeats: 5
+5. Between each gesture, the participants rested
+6. Following gestures: 
+    Rest
+    Extension
+    Flexion
+    Ulnar Deviation
+    Radial Deviation
+    Grip
+    Abduction
+    Adduction
+    Supination
+    Pronation
+
 Project Constraints:  
 1. Classify 10 gestures
 2. One agent
