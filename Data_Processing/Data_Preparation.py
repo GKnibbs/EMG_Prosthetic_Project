@@ -1,11 +1,11 @@
 # EMG All-CNN Training Pipeline (Step 1): Data Loading and Preprocessing
-
 import os
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from tensorflow.keras.utils import to_categorical
+from keras.utils import to_categorical
 
 # ------------------------------
 # Configurable parameters
@@ -16,16 +16,16 @@ STRIDE = 100        # 50% overlap
 N_CHANNELS = 10      # 4 real + 6 virtual sensors
 N_CLASSES = 10       # Number of gestures to classify
 GESTURE_FILES = {
-    'rest': 0,
-    'extension': 1,
-    'flexion': 2,
-    'ulnar_deviation': 3,
-    'radial_deviation': 4,
-    'grip': 5,
-    'abduction': 6,
-    'adduction': 7,
-    'supination': 8,
-    'pronation': 9
+    '0_REST': 0,
+    '1_EXTENSION': 1,
+    '2_FLEXION': 2,
+    '3_ULNAR_DEVIATION': 3,
+    '4_RADIAL_DEVIATION': 4,
+    '5_GRIP': 5,
+    '6_ABDUCTION': 6,
+    '7_ADDUCTION': 7,
+    '8_SUPPINATION': 8,
+    '9_PRONATION': 9
 }
 
 # ------------------------------
@@ -72,7 +72,7 @@ def window_data(data, label):
 # ------------------------------
 # Function: Load and process all gesture CSVs
 # ------------------------------
-def load_dataset_from_csv(folder_path = os.path.join("..", "Segregated_Data")):
+def load_dataset_from_csv(folder_path = os.path.join("Segregated_Data")):
     """
     Reads all gesture files, computes virtual sensors, windows the data,
     and returns the full dataset.
@@ -81,6 +81,8 @@ def load_dataset_from_csv(folder_path = os.path.join("..", "Segregated_Data")):
 
     for gesture_name, label in GESTURE_FILES.items():
         file_path = os.path.join(folder_path, f"{gesture_name}.csv")
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"No data for gesture {gesture_name!r} at {file_path}")
         print(f"Loading {file_path}...")
 
         df = pd.read_csv(file_path)
