@@ -24,7 +24,7 @@ GESTURE_FILES = {
     '5_GRIP': 5,
     '6_ABDUCTION': 6,
     '7_ADDUCTION': 7,
-    '8_SUPPINATION': 8,
+    '8_SUPINATION': 8,
     '9_PRONATION': 9
 }
 
@@ -98,3 +98,43 @@ def load_dataset_from_csv(folder_path = os.path.join("Segregated_Data")):
     X = np.concatenate(X_all, axis=0)
     y = np.concatenate(y_all, axis=0)
     return X, y
+
+# ------------------------------
+# Function: Normalize and split dataset
+# ------------------------------
+def normalize_and_split(X, y, test_size=0.2):
+    """
+    Normalize dataset using global per-channel z-score, then split into train/test sets.
+    Returns:
+        - X_train, X_test: normalized inputs
+        - y_train_cat, y_test_cat: one-hot encoded targets
+        - scaler_stats: (mean, std) tuple for deployment
+    """
+    # Flatten time dimension to normalize per channel across all windows
+    X_flat = X.reshape(-1, X.shape[-1])  # shape: [N * 200, 10]
+    
+    # Compute mean and std
+    mean = X_flat.mean(axis=0)
+    std = X_flat.std(axis=0) + 1e-8  # epsilon to avoid division by zero
+
+    # Normalize each window
+    X_norm = (X - mean) / std
+
+    # Train/test split (stratified by gesture)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_norm, y, test_size=test_size, stratify=y, random_state=42
+    )
+
+    # One-hot encode labels
+    y_train_cat = to_categorical(y_train, num_classes=N_CLASSES)
+    y_test_cat = to_categorical(y_test, num_classes=N_CLASSES)
+
+    return X_train, X_test, y_train_cat, y_test_cat, (mean, std)
+
+# Load data
+X, y = load_dataset_from_csv()
+
+# Normalize and split
+X_train, X_test, y_train_cat, y_test_cat, (mean, std) = normalize_and_split(X, y)
+
+print(f"Train samples: {X_train.shape}, Test samples: {X_test.shape}")
