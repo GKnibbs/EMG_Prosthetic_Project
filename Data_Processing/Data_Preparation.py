@@ -6,6 +6,16 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Dropout, BatchNormalization, InputLayer
+from keras.models import load_model
+
+# Progress bars
+from keras.callbacks import Callback
+from tqdm import tqdm
+
+# Early stopping - avoiding overfitting
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 # ------------------------------
 # Configurable parameters
@@ -27,6 +37,26 @@ GESTURE_FILES = {
     '8_SUPINATION': 8,
     '9_PRONATION': 9
 }
+
+# Loading bar for each epoch for QoL
+class TQDMProgressBar(Callback):
+    """
+    Custom Keras Callback that wraps each epoch with a tqdm progress bar.
+    """
+    def on_train_begin(self, logs=None):
+        self.epochs = self.params['epochs']
+
+    def on_epoch_begin(self, epoch, logs=None):
+        print(f"\nEpoch {epoch+1}/{self.epochs}")
+
+    def on_train_batch_begin(self, batch, logs=None):
+        self.progress_bar = tqdm(total=self.params['steps'], unit='batch', leave=False)
+
+    def on_train_batch_end(self, batch, logs=None):
+        self.progress_bar.update(1)
+
+    def on_epoch_end(self, epoch, logs=None):
+        self.progress_bar.close()
 
 # ------------------------------
 # Function: Compute virtual channels
@@ -131,10 +161,91 @@ def normalize_and_split(X, y, test_size=0.2):
 
     return X_train, X_test, y_train_cat, y_test_cat, (mean, std)
 
-# Load data
-X, y = load_dataset_from_csv()
+# ------------------------------
+# Save normalization parameters
+# ------------------------------
+def save_normalization_stats(mean, std, output_file="normalization_params.npz"):
+    """
+    Save mean and std as .npz file to use in deployment (e.g. STM32 firmware).
+    """
+    np.savez(output_file, mean=mean, std=std)
+    print(f"Saved normalization parameters to {output_file}")
 
-# Normalize and split
-X_train, X_test, y_train_cat, y_test_cat, (mean, std) = normalize_and_split(X, y)
+# ------------------------------
+# Function: Build CNN model
+# ------------------------------
 
-print(f"Train samples: {X_train.shape}, Test samples: {X_test.shape}")
+def build_cnn_model(input_shape=(200, 10), num_classes=10):
+    """
+    Builds a compact CNN for EMG gesture classification.
+    Input: [200 timesteps, 10 channels]
+    """
+    model = Sequential([
+        InputLayer(input_shape=input_shape),
+        Conv1D(32, kernel_size=5, activation='relu', padding='same'),
+        BatchNormalization(),
+        MaxPooling1D(pool_size=2),
+
+        Conv1D(64, kernel_size=3, activation='relu', padding='same'),
+        BatchNormalization(),
+        MaxPooling1D(pool_size=2),
+
+        Flatten(),
+        Dense(64, activation='relu'),
+        Dropout(0.3),
+        Dense(num_classes, activation='softmax')
+    ])
+
+    model.compile(optimizer='adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    model.summary()
+    return model
+
+if __name__ == "__main__":
+    # Load data
+    X, y = load_dataset_from_csv()
+
+    # Normalize and split
+    X_train, X_test, y_train_cat, y_test_cat, (mean, std) = normalize_and_split(X, y)
+
+    print(f"Train samples: {X_train.shape}, Test samples: {X_test.shape}")
+
+    # Saving mean and std for embedded deployment:
+    save_normalization_stats(mean, std)
+
+    # Training Model
+    model = build_cnn_model(input_shape=(200, 10), num_classes=10)
+
+    # Directory to save best model - early stopping
+    checkpoint_path = "best_model.h5"
+    callbacks = [TQDMProgressBar(),  
+                 # Save model with lowest validation loss
+                ModelCheckpoint(filepath=checkpoint_path,
+                    monitor='val_loss',
+                    save_best_only=True,
+                    verbose=1),
+    
+                # Stop if no improvement for 5 epochs
+                EarlyStopping(monitor='val_loss',
+                    patience=5,
+                    restore_best_weights=True,
+                    verbose=1)]
+    
+    model.fit(X_train, y_train_cat,
+            validation_data=(X_test, y_test_cat),
+            epochs=20,
+            batch_size=64,
+            callbacks=callbacks,
+            verbose=0)
+    
+    # Evaluation of models
+    test_loss, test_acc = model.evaluate(X_test, y_test_cat, verbose=0)
+    print(f"Test Accuracy: {test_acc:.4f}, Test Loss: {test_loss:.4f}")
+
+    # Load model
+    model = load_model("best_model.h5")
+
+    model.save("final_cnn_model.h5")
+
