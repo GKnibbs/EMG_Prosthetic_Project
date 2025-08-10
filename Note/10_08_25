@@ -1,0 +1,30 @@
+Problem encounterd; poor distinction between phase-bias and amplitude-bias gestures
+problem not mediated by application of CNN, CNN-LSTM hybrid or by GRU
+Most optimal thus far is the GRU network -- achieved ~ 60% acc
+
+New approach:
+Focus on system design over network selection first.
+
+Potential application: 
+1. Two-Stage Routing
+Two stages; Stage A, Stage B
+
+Stage A:
+Gesture-bias identification;
+100ms windows, 4 channels + 6 virtual channels (pair differentiated), compute simple feature vector for each channel (real + virtual)
+Determine gesture-bias (amplitude or phase)
+
+Stage B: Two Branches
+Branch 1: Amplitude-bias gesture estimation
+Branch 2: Small temporal model - (1D DS‑CNN or 1–2‑layer GRU) over the last few windows.
+
+2. Temporal decoding
+
+3. Confidence-aware approximation
+
+4. Regression fallback ("gesture blend")
+
+5. Feature engineering for phase-bias
+
+6. Hyperparameter tuning (offline)
+    essentially meta tuning (advised to look at Grey Wolf Optimisation) - apply onto a fixed, small architecture to extract higher accuracy before qunatisation for firmware embedding.
