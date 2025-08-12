@@ -2,7 +2,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
+from keras import layers
 
 # Train_Baseline.py: Compact 1D CNN for EMG gesture classification, designed for embedded constraints
 # Model: Input [win, 4] → Conv1D(16, 7) → BN → ReLU → Conv1D(32, 5) → BN → ReLU → GlobalAvgPool1D → Dense(64) → Dropout(0.2) → Dense(10, softmax)

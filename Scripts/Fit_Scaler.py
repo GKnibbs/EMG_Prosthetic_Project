@@ -1,7 +1,7 @@
 import os
 import json
 import numpy as np
-from Scripts.dataset_windows import load_windows_streaming
+from Scripts.Dataset_Windows import load_windows_streaming
 
 # Fit_Scaler.py: Computes per-channel median & IQR for training subjects only, saves to disk
 # RobustScaler helps EMG by reducing outlier impact and normalizing subject variability
