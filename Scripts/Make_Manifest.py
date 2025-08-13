@@ -38,7 +38,7 @@ def scan_csv(path):
     for chunk in pd.read_csv(path, chunksize=chunk_size):
         # Validate columns on first chunk
         if not columns_ok:
-            required = ['ID', 'Ch1', 'Ch2', 'Ch3', 'Ch4']
+            required = ['iD', 'ch1', 'ch2', 'ch3', 'ch4']
             if not all(col in chunk.columns for col in required):
                 print(f"[WARN] {path}: missing required columns!")
                 return None
@@ -46,15 +46,15 @@ def scan_csv(path):
         # Count rows
         n_rows += len(chunk)
         # Unique subject IDs
-        ids.update(chunk['ID'].unique())
+        ids.update(chunk['iD'].unique())
         # NaN check
         n_nans += chunk.isna().sum().sum()
         # Out-of-range check (±5V surrogate)
-        for ch in ['Ch1', 'Ch2', 'Ch3', 'Ch4']:
+        for ch in ['ch1', 'ch2', 'ch3', 'ch4']:
             n_out_of_range += ((chunk[ch] < -5) | (chunk[ch] > 5)).sum()
         # Sample a few IDs for manifest
         if len(sample_ids) < 5:
-            sample_ids.update(chunk['ID'].unique())
+            sample_ids.update(chunk['iD'].unique())
             if len(sample_ids) > 5:
                 sample_ids = set(list(sample_ids)[:5])
     return {

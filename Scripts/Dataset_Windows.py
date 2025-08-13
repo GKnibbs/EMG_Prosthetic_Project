@@ -24,9 +24,9 @@ def load_windows_streaming(csv_path, fs=2000, win_ms=100, hop_ms=50):
         if gesture is None:
             gesture = csv_path.split('_')[0] if '_' in csv_path else csv_path.split('.')[0]
         # Group rows by subject
-        for subject_id, sub_df in chunk.groupby('ID'):
+        for subject_id, sub_df in chunk.groupby('iD'):
             # Only keep Ch1..Ch4 columns
-            data = sub_df[['Ch1', 'Ch2', 'Ch3', 'Ch4']].values
+            data = sub_df[['ch1', 'ch2', 'ch3', 'ch4']].values
             # Buffer for this subject
             if subject_id not in subject_buffers:
                 subject_buffers[subject_id] = np.empty((0, 4))
