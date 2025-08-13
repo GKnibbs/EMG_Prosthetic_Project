@@ -20,9 +20,11 @@ def load_windows_streaming(csv_path, fs=2000, win_ms=100, hop_ms=50):
     subject_buffers = {}
     gesture = None
     for chunk in pd.read_csv(csv_path, chunksize=chunk_size):
-        # Get gesture label from filename (assume gesture in filename)
+        # Get gesture label from filename (e.g., 0_REST.csv -> 0)
         if gesture is None:
-            gesture = csv_path.split('_')[0] if '_' in csv_path else csv_path.split('.')[0]
+            import os
+            base = os.path.basename(csv_path)
+            gesture = base.split('_')[0] if '_' in base else base.split('.')[0]
         # Group rows by subject
         for subject_id, sub_df in chunk.groupby('iD'):
             # Only keep Ch1..Ch4 columns

@@ -51,9 +51,11 @@ def serialize_example(window, label, subject_id, start_sample):
 
 # --- Helper: gesture label to int (0..9) ---
 def gesture_to_id(gesture):
-    # Map gesture string to int (customize as needed)
-    gesture_map = {f'gesture_{i}': i for i in range(10)}
-    return gesture_map.get(gesture, -1)
+    # Use integer prefix as label (e.g., '0', '1', ...)
+    try:
+        return int(gesture)
+    except Exception:
+        return -1
 
 # --- Main TFRecord writer ---
 def write_tfrecords(split):

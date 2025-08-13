@@ -16,7 +16,7 @@ os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 
 # Helper: get gesture label from filename (assumes gesture in filename)
 def get_gesture_label(filename):
-    # Example: gesture_01_subject_12.csv -> gesture_01
+    # Example: 0_REST.csv -> 0
     base = os.path.basename(filename)
     return base.split('_')[0] if '_' in base else base.split('.')[0]
 
