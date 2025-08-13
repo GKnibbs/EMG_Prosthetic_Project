@@ -1,7 +1,9 @@
+
 import os
 import numpy as np
 import tensorflow as tf
 import json
+import argparse
 from Scripts.Dataset_Windows import load_windows_streaming
 from Scripts.Utils_Scaling import apply_median_iqr
 
@@ -9,13 +11,18 @@ from Scripts.Utils_Scaling import apply_median_iqr
 # Each TFRecord contains: window (float32, [win,4]), label (int8), subject_id (int8), start_sample (int64)
 # Shards output by ~100MB files for memory safety
 
+
 # --- Config ---
 SPLITS = ['train', 'val', 'test']
-SPLIT_IDS = {split: f'{split}_ids.txt' for split in SPLITS}
+SPLIT_IDS = {split: os.path.join('EMG_Prosthetic_Project', 'artifacts', f'{split}_ids.txt') for split in SPLITS}
 TFRECORD_DIR = os.path.join('artifacts', 'tfrecords')
-CSV_DIR = 'data'  # Update if needed
 SCALER_PATH = 'artifacts/scaler.json'
 SHARD_SIZE_MB = 100
+
+# --- Argparse for data_dir ---
+parser = argparse.ArgumentParser()
+parser.add_argument('--data_dir', required=True, help='Directory containing per-gesture CSV files')
+args, _ = parser.parse_known_args()
 
 # --- Load scaler ---
 with open(SCALER_PATH) as f:
@@ -35,9 +42,9 @@ def serialize_example(window, label, subject_id, start_sample):
     window_bytes = window.astype(np.float32).tobytes()
     feature = {
         'window': tf.train.Feature(bytes_list=tf.train.BytesList(value=[window_bytes])),
-        'label': tf.train.Feature(int64_list=tf.train.Int64List(value=[label])),
-        'subject_id': tf.train.Feature(int64_list=tf.train.Int64List(value=[subject_id])),
-        'start_sample': tf.train.Feature(int64_list=tf.train.Int64List(value=[start_sample]))
+        'label': tf.train.Feature(int64_list=tf.train.Int64List(value=[int(label)])),
+        'subject_id': tf.train.Feature(int64_list=tf.train.Int64List(value=[int(subject_id)])),
+        'start_sample': tf.train.Feature(int64_list=tf.train.Int64List(value=[int(start_sample)]))
     }
     example = tf.train.Example(features=tf.train.Features(feature=feature))
     return example.SerializeToString()
@@ -55,11 +62,11 @@ def write_tfrecords(split):
     shard_idx = 0
     n_bytes = 0
     writer = None
-    # Stream all CSVs
-    for fname in os.listdir(CSV_DIR):
+    # Stream all CSVs in the provided data_dir
+    for fname in os.listdir(args.data_dir):
         if not fname.lower().endswith('.csv'):
             continue
-        fpath = os.path.join(CSV_DIR, fname)
+        fpath = os.path.join(args.data_dir, fname)
         for subject_id, gesture, window, start, end in load_windows_streaming(fpath):
             if subject_id not in split_subjects[split]:
                 continue

@@ -41,7 +41,7 @@ model = keras.Model(inputs, outputs)
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=1e-3),
     loss='categorical_crossentropy',
-    metrics=['accuracy', keras.metrics.AUC(multi_label=True, num_classes=10, name='auc_ovr')]
+    metrics=['accuracy']
 )
 
 # --- Class weights ---

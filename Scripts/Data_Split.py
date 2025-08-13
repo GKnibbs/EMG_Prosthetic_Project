@@ -1,29 +1,21 @@
-import pandas as pd
+
+# Data_Split.py: Randomly splits subject IDs (1..40) into train/val/test and writes to txt files
+# Usage: python Scripts/Data_Split.py --n_subjects 40 --train_ratio 0.7 --val_ratio 0.15 --test_ratio 0.15 --out_dir artifacts
+
 import numpy as np
 import os
 import argparse
 
-# Data_Split.py: Splits subject IDs from manifest into train/val/test splits and writes to txt files
-# Usage: python Scripts/Data_Split.py --manifest artifacts/manifest.csv --train_ratio 0.7 --val_ratio 0.15 --test_ratio 0.15 --out_dir artifacts
-
 parser = argparse.ArgumentParser()
-parser.add_argument('--manifest', required=True, help='Path to manifest.csv')
+parser.add_argument('--n_subjects', type=int, default=40, help='Total number of subject IDs (default: 40)')
 parser.add_argument('--train_ratio', type=float, default=0.7, help='Fraction of subjects for training')
 parser.add_argument('--val_ratio', type=float, default=0.15, help='Fraction for validation')
 parser.add_argument('--test_ratio', type=float, default=0.15, help='Fraction for test')
 parser.add_argument('--out_dir', default='artifacts', help='Output directory for split files')
 args = parser.parse_args()
 
-# Read manifest and collect all unique subject IDs
-manifest = pd.read_csv(args.manifest)
-all_ids = set()
-for ids_str in manifest['ids_sample']:
-    for s in str(ids_str).split(';'):
-        if s.strip().isdigit():
-            all_ids.add(int(s.strip()))
-all_ids = sorted(list(all_ids))
-
-# Shuffle and split
+# Generate subject IDs 1..n_subjects
+all_ids = np.arange(1, args.n_subjects + 1)
 np.random.seed(42)
 np.random.shuffle(all_ids)
 n = len(all_ids)

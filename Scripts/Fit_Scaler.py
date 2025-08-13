@@ -8,8 +8,9 @@ from Scripts.Dataset_Windows import load_windows_streaming
 # CLI: python Scripts/Fit_Scaler.py --csv data/your.csv --train_ids train_ids.txt
 
 import argparse
+
 parser = argparse.ArgumentParser()
-parser.add_argument('--csv', required=True, help='Path to CSV file')
+parser.add_argument('--data_dir', required=True, help='Directory containing per-gesture CSV files')
 parser.add_argument('--train_ids', required=True, help='Path to train_ids.txt')
 parser.add_argument('--out', default='artifacts/scaler.json', help='Output scaler path')
 args = parser.parse_args()
@@ -18,13 +19,18 @@ args = parser.parse_args()
 with open(args.train_ids) as f:
     train_ids = set(int(line.strip()) for line in f if line.strip())
 
-# First pass: collect all windows for training subjects
+
+# First pass: collect all windows for training subjects across all gesture files
 channel_data = [[] for _ in range(4)]  # Ch1..Ch4
-for subject_id, gesture, window, start, end in load_windows_streaming(args.csv):
-    if subject_id in train_ids:
-        # Accumulate per-channel data block-wise (bounded memory)
-        for ch in range(4):
-            channel_data[ch].append(window[:, ch].ravel())
+for fname in os.listdir(args.data_dir):
+    if not fname.lower().endswith('.csv'):
+        continue
+    fpath = os.path.join(args.data_dir, fname)
+    for subject_id, gesture, window, start, end in load_windows_streaming(fpath):
+        if subject_id in train_ids:
+            # Accumulate per-channel data block-wise (bounded memory)
+            for ch in range(4):
+                channel_data[ch].append(window[:, ch].ravel())
 
 # Concatenate blocks for each channel
 channel_data = [np.concatenate(ch_blocks) for ch_blocks in channel_data]
