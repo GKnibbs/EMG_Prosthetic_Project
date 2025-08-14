@@ -7,7 +7,7 @@ import numpy as np
 # It builds a manifest.csv with: gesture label, file path, subject IDs present, total samples, estimated trials, and sampling rate.
 # All validation and stats are done in a streaming fashion for efficiency.
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'Segmented_Data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'Segregated_Data')
 ARTIFACTS_DIR = os.path.join(os.path.dirname(__file__), '..', 'artifacts')
 MANIFEST_PATH = os.path.join(ARTIFACTS_DIR, 'manifest.csv')
 
