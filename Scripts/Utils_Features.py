@@ -16,7 +16,7 @@ def extract_emg_features(window):
         zc = np.sum(((x[:-1] * x[1:]) < 0) & (np.abs(x[:-1] - x[1:]) > 0.01))
         # Slope Sign Changes (SSC)
         dx = np.diff(x)
-        ssc = np.sum(((dx[:-1] * dx[1:]) < 0) & (np.abs(dx[:-1]) > 0.01) & (np.abs(dx[1:]) > 0.01)))
+        ssc = np.sum(((dx[:-1] * dx[1:]) < 0) & (np.abs(dx[:-1]) > 0.01) & (np.abs(dx[1:]) > 0.01))
         # Willison Amplitude (WAMP)
         wamp = np.sum(np.abs(np.diff(x)) > 0.01)
         features.extend([mav, rms, wl, zc, ssc, wamp])
