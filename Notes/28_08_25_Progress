@@ -1,0 +1,11 @@
+Tested and the following outcomes:
+1. Tested raw 10-channel CNN model for accuracy - initially presented as greater accuracy - under evaluation demonstrated the model had overfitted to the training data and did not classify unfamiliar data accurately.
+2. Tested the 4-channel feature-based model MLP. Outcome initially appeared less accurate compared to the raw CNN model (true in training data), in testing data w/ unfmailiar data performed with greater accuracy (approx. 60%). Yet still insufficient
+3. Implemented the 10-channel feature-based model, accuracy rose, problem still persists with accuracy reduction for phase-bias gestures
+
+What next?
+1. New idea for infrastructur. The amplitude-bias gesture are accuractely classified and rely on the 'snapshot' of data taken by extracting the features for the 100ms blocks. Phase-bias will not be identified by deeper/wider MLP models. 
+2. Phase-bias requires temporal information extraction. Proposition; implement GRU/RNN (whatever is simplest and sufficient on model size) for phase-bias identification. Train on small time-blocks (25ms to 50ms, for 4 or 2 sets of temporal blocks to be computed in the same 100ms window)
+3. The CNN models must remain undisturbed, implement GRU/RNN concurrently to deal exclusively with the phase-bias gestures.
+
+Perhaps both be applied and and both can 'discuss' what is the predicted gesture? There are gestures that defy classification as amplitude, and phase biased.
