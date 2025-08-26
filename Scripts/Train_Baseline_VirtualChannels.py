@@ -53,7 +53,7 @@ print('Class weights:', class_weights)
 # --- Training ---
 val_ds = get_dataset('val', win_len, n_channels)
 callbacks = [
-	keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+	keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)
 ]
 print('Model params:', model.count_params())
 
