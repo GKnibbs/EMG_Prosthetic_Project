@@ -68,5 +68,5 @@ history = model.fit(
 	callbacks=callbacks
 )
 
-model.save(os.path.join(save_dir, 'model'))
+model.save(os.path.join(save_dir, 'model.keras'))
 print(f'Model (virtual channels) saved to {save_dir}')

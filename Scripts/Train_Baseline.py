@@ -76,7 +76,7 @@ history = model.fit(
 )
 
 # Save model
-model.save(os.path.join(save_dir, 'model'))
+model.save(os.path.join(save_dir, 'model.keras'))
 print(f'Model saved to {save_dir}')
 
 # Line-by-line comments:

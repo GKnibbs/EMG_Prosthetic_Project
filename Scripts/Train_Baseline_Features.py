@@ -63,7 +63,7 @@ history = model.fit(
     callbacks=callbacks
 )
 
-model.save(os.path.join(save_dir, 'model'))
+model.save(os.path.join(save_dir, 'model.keras'))
 print(f'Model (features) saved to {save_dir}')
 
 # This script mirrors Train_Baseline.py but uses feature vectors as input.
