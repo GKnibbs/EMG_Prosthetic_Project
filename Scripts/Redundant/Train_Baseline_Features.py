@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers
-from Scripts.Make_TFRecords_Features import get_dataset
+from Scripts.Redundant.Make_TFRecords_Features import get_dataset
 
 # Train_Baseline_Features.py: Simple MLP for EMG gesture classification using feature vectors
 # Model: Input [n_features] → Dense(64) → ReLU → Dropout → Dense(32) → ReLU → Dense(10, softmax)

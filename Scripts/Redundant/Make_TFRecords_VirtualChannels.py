@@ -4,8 +4,8 @@ import numpy as np
 import tensorflow as tf
 import json
 import argparse
-from Scripts.Dataset_Windows_VirtualChannels import load_windows_streaming
-from Scripts.Utils_Scaling import apply_median_iqr
+from Scripts.Features_VirtualChannels.Dataset_Windows_VirtualChannels import load_windows_streaming
+from Scripts.Utils_Config.Utils_Scaling import apply_median_iqr
 
 # Make_TFRecords_VirtualChannels.py: Streams windows (10 channels), applies robust scaling, writes TFRecords
 # Each TFRecord contains: window (float32, [win,10]), label (int8), subject_id (int8), start_sample (int64)

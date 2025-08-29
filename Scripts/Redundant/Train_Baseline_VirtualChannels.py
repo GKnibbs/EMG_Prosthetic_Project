@@ -10,7 +10,7 @@ from keras import layers
 def get_dataset(split, win_len=200, n_channels=10, batch_size=64):
 	tfrecord_dir = os.path.join('artifacts', 'tfrecords_virtualchannels', split)
 	files = tf.io.gfile.glob(os.path.join(tfrecord_dir, '*.tfrecord'))
-	from Scripts.Make_TFRecords_VirtualChannels import parse_fn
+	from Scripts.Redundant.Make_TFRecords_VirtualChannels import parse_fn
 	ds = tf.data.TFRecordDataset(files)
 	ds = ds.map(lambda x: parse_fn(x, win_len, n_channels), num_parallel_calls=tf.data.AUTOTUNE)
 	ds = ds.map(lambda w, l, sid, st: (w, tf.one_hot(l, 10)), num_parallel_calls=tf.data.AUTOTUNE)
