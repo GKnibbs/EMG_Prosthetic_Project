@@ -24,3 +24,16 @@ def extract_emg_features(window):
 
 # Feature vector length: n_channels * 6
 # Features: [MAV, RMS, WL, ZC, SSC, WAMP] for each channel
+
+# Extract temporal features for RNN/GRU: split window into n_steps blocks, extract features from each
+def extract_temporal_features(window, fs=2000, n_steps=4):
+    # window: [win_len, 10] (e.g., [100, 10] for 100ms at 2kHz)
+    block_len = window.shape[0] // n_steps  # e.g., 25 samples for 25ms blocks
+    temporal_features = []
+    for i in range(n_steps):
+        start = i * block_len
+        end = start + block_len
+        block = window[start:end, :]
+        feats = extract_emg_features(block)  # [60] for 10 channels
+        temporal_features.append(feats)
+    return np.stack(temporal_features, axis=0)  # [n_steps, 60]
