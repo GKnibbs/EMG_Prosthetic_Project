@@ -11,7 +11,7 @@ from Scripts.Hybrid.Make_TFRecords_Hybrid import gesture_to_id
 #   subject_id: int
 #   start_sample: int
 
-def parse_hybrid_example(example_proto, n_features=60, n_steps=4, n_temporal_features=40):
+def parse_hybrid_example(example_proto, n_features=60, n_steps=4, n_temporal_features=60):
     feature_description = {
         'amplitude_features': tf.io.FixedLenFeature([n_features], tf.float32),
         'temporal_features': tf.io.FixedLenFeature([n_steps * n_temporal_features], tf.float32),
@@ -28,10 +28,12 @@ def parse_hybrid_example(example_proto, n_features=60, n_steps=4, n_temporal_fea
     return (amp, temp), label, subject_id, start_sample
 
 
-def get_hybrid_dataset(tfrecord_dir, n_features=60, n_steps=4, n_temporal_features=24, batch_size=32, shuffle=True, cache=False):
+def get_hybrid_dataset(tfrecord_dir, n_features=60, n_steps=4, n_temporal_features=60, batch_size=32, shuffle=True, cache=False):
     files = tf.io.gfile.glob(os.path.join(tfrecord_dir, '*.tfrecord'))
     ds = tf.data.TFRecordDataset(files)
     ds = ds.map(lambda x: parse_hybrid_example(x, n_features, n_steps, n_temporal_features), num_parallel_calls=tf.data.AUTOTUNE)
+    # Drop subject_id and start_sample for model training
+    ds = ds.map(lambda amp_temp, label, sid, st: ((amp_temp[0], amp_temp[1]), label), num_parallel_calls=tf.data.AUTOTUNE)
     if shuffle:
         ds = ds.shuffle(10000)
     ds = ds.batch(batch_size)

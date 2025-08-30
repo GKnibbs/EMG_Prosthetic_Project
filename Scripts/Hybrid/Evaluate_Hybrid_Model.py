@@ -20,17 +20,15 @@ tfrecord_dir = os.path.join('artifacts', 'tfrecords_features_hybrid', 'test')
 ds = get_hybrid_dataset(tfrecord_dir, n_features, n_steps, n_temporal_features, batch_size, shuffle=False)
 
 # --- Collect predictions and true labels ---
-y_true, y_pred, subject_ids = [], [], []
-for (amp, temp), labels, sids, _ in ds:
+y_true, y_pred = [], []
+for (amp, temp), labels in ds:
     probs = model.predict([amp, temp])
     preds = np.argmax(probs, axis=1)
     y_true.extend(labels.numpy())
     y_pred.extend(preds)
-    subject_ids.extend(sids.numpy())
 
 y_true = np.array(y_true)
 y_pred = np.array(y_pred)
-subject_ids = np.array(subject_ids)
 
 # --- Metrics ---
 acc_macro = accuracy_score(y_true, y_pred)
@@ -71,13 +69,8 @@ plt.tight_layout(rect=[0, 0, 1, 0.97])
 plt.savefig(os.path.join('artifacts', 'confusion_matrix_hybrid.png'))
 plt.close()
 
-# --- Per-subject accuracy ---
-subject_acc = {}
-for sid in np.unique(subject_ids):
-    mask = subject_ids == sid
-    subject_acc[sid] = accuracy_score(y_true[mask], y_pred[mask])
-pd.DataFrame({'subject_id': list(subject_acc.keys()), 'accuracy': list(subject_acc.values())}) \
-    .to_csv(os.path.join('artifacts', 'subject_accuracy_hybrid.csv'), index=False)
+
+# --- Per-subject accuracy removed: subject_id not available in new dataset format ---
 
 # --- Print analysis ---
 print('Macro accuracy:', acc_macro)
