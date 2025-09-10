@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import json
 import argparse
-from Scripts.Features_VirtualChannels.Dataset_Windows_VirtualChannels import load_windows_streaming
+from Scripts.Virtual_Channels.Dataset_Windows_VirtualChannels import load_windows_streaming
 from Scripts.Utils_Config.Utils_Scaling import apply_median_iqr
 from Scripts.Utils_Config.Utils_Features import extract_emg_features
 

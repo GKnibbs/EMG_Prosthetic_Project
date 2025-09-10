@@ -3,9 +3,9 @@ import numpy as np
 import tensorflow as tf
 import json
 import argparse
-from Scripts.Dataset_Windows import load_windows_streaming
-from Scripts.Utils_Scaling import apply_median_iqr
-from Scripts.Utils_Features import extract_emg_features
+from Scripts.BaseModel.Dataset_Windows import load_windows_streaming
+from Scripts.Utils_Config.Utils_Scaling import apply_median_iqr
+from Scripts.Utils_Config.Utils_Features import extract_emg_features
 
 # Make_TFRecords_Features.py: Streams windows, applies robust scaling, extracts features, writes TFRecords
 # Each TFRecord contains: feature_vector (float32, [n_features]), label (int8), subject_id (int8), start_sample (int64)

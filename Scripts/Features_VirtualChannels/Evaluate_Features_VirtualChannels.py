@@ -5,7 +5,7 @@ import tensorflow as tf
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
-from Scripts.Make_TFRecords_Features_VirtualChannels import parse_fn, get_dataset
+from Scripts.Features_VirtualChannels.Make_TFRecords_Features_VirtualChannels import parse_fn, get_dataset
 
 # Evaluate_Features_VirtualChannels.py: Evaluate feature-based EMG gesture classifier (10 channels, 60 features)
 

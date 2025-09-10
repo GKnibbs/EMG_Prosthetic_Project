@@ -92,25 +92,38 @@ if __name__ == '__main__':
 	for split in SPLITS:
 		write_tfrecords(split)
 
-def parse_fn(example_proto, n_features=60):
-	features = {
-		'feature_vector': tf.io.FixedLenFeature([], tf.string),
+def parse_fn(example_proto, n_features=60, n_steps=4, n_temporal_features=60):
+	"""
+	Parse a hybrid TFRecord example written by serialize_example in this module.
+
+	Returns a tuple: ((amplitude_features, temporal_features, window_bytes), label, subject_id, start_sample)
+	- amplitude_features: tf.float32 tensor shape [n_features]
+	- temporal_features: tf.float32 tensor shape [n_steps, n_temporal_features]
+	- window_bytes: raw bytes (can be decoded by caller if needed)
+	"""
+	feature_description = {
+		'amplitude_features': tf.io.FixedLenFeature([n_features], tf.float32),
+		'temporal_features': tf.io.FixedLenFeature([n_steps * n_temporal_features], tf.float32),
+		'window': tf.io.FixedLenFeature([], tf.string),
 		'label': tf.io.FixedLenFeature([], tf.int64),
 		'subject_id': tf.io.FixedLenFeature([], tf.int64),
 		'start_sample': tf.io.FixedLenFeature([], tf.int64)
 	}
-	parsed = tf.io.parse_single_example(example_proto, features)
-	feature_vector = tf.io.decode_raw(parsed['feature_vector'], tf.float32)
-	feature_vector = tf.reshape(feature_vector, [n_features])
+	parsed = tf.io.parse_single_example(example_proto, feature_description)
+	amp = tf.cast(parsed['amplitude_features'], tf.float32)
+	temp = tf.cast(parsed['temporal_features'], tf.float32)
+	# reshape flattened temporal features into [n_steps, n_temporal_features]
+	temp = tf.reshape(temp, [n_steps, n_temporal_features])
+	window_bytes = parsed['window']
 	label = tf.cast(parsed['label'], tf.int32)
 	subject_id = tf.cast(parsed['subject_id'], tf.int32)
 	start_sample = tf.cast(parsed['start_sample'], tf.int64)
-	return feature_vector, label, subject_id, start_sample
+	return (amp, temp, window_bytes), label, subject_id, start_sample
 
-def get_dataset(tfrecord_dir, n_features=60, batch_size=32, shuffle=True, cache=False):
+def get_dataset(tfrecord_dir, n_features=60, n_steps=4, n_temporal_features=60, batch_size=32, shuffle=True, cache=False):
 	files = tf.io.gfile.glob(os.path.join(tfrecord_dir, '*.tfrecord'))
 	ds = tf.data.TFRecordDataset(files)
-	ds = ds.map(lambda x: parse_fn(x, n_features), num_parallel_calls=tf.data.AUTOTUNE)
+	ds = ds.map(lambda x: parse_fn(x, n_features, n_steps, n_temporal_features), num_parallel_calls=tf.data.AUTOTUNE)
 	if shuffle:
 		ds = ds.shuffle(10000)
 	ds = ds.batch(batch_size)

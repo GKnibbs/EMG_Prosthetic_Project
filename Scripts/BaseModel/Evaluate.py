@@ -13,7 +13,7 @@ model_dir = os.path.join('artifacts', 'models', 'baseline', 'model')
 model = tf.keras.models.load_model(model_dir)
 
 # --- Load test data ---
-from Scripts.Make_TFRecords import parse_fn
+from Scripts.BaseModel.Make_TFRecords import parse_fn
 win_len = 200  # Update if needed
 batch_size = 64
 

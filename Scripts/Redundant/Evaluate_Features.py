@@ -4,7 +4,7 @@ import tensorflow as tf
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
-from Scripts.Make_TFRecords_Features import parse_fn, get_dataset
+from Scripts.Redundant.Make_TFRecords_Features import parse_fn, get_dataset
 
 # Evaluate_Features.py: Evaluate feature-based EMG gesture classifier
 # Loads saved model, runs on test TFRecords (features), outputs metrics, confusion matrix PNG, per-subject accuracy CSV

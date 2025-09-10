@@ -1,8 +1,8 @@
 
 import numpy as np
 import pandas as pd
-from Scripts.Utils_Signal import safe_chunk
-from Scripts.Config import trim_head_ms, trim_tail_ms
+from Scripts.Utils_Config.Utils_Signal import safe_chunk
+from Scripts.Utils_Config.Config import trim_head_ms, trim_tail_ms
 
 # Generator: streams a CSV, yields sliding windows for each subject
 # Inputs: csv_path, fs=2000, win_ms=100, hop_ms=50

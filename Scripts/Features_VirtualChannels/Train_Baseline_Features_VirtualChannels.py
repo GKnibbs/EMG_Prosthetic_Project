@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers
-from Scripts.Make_TFRecords_Features_VirtualChannels import get_dataset
+from Scripts.Features_VirtualChannels.Make_TFRecords_Features_VirtualChannels import get_dataset
 
 # Train_Baseline_Features_VirtualChannels.py: MLP for EMG gesture classification using 60-feature vectors (10 channels)
 

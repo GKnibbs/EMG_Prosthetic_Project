@@ -12,7 +12,7 @@ from keras import layers
 def get_dataset(split, win_len=200, batch_size=64):
     tfrecord_dir = os.path.join('artifacts', 'tfrecords', split)
     files = tf.io.gfile.glob(os.path.join(tfrecord_dir, '*.tfrecord'))
-    from Scripts.Make_TFRecords import parse_fn
+    from Scripts.BaseModel.Make_TFRecords import parse_fn
     ds = tf.data.TFRecordDataset(files)
     ds = ds.map(lambda x: parse_fn(x, win_len), num_parallel_calls=tf.data.AUTOTUNE)
     ds = ds.map(lambda w, l, sid, st: (w, tf.one_hot(l, 10)), num_parallel_calls=tf.data.AUTOTUNE)

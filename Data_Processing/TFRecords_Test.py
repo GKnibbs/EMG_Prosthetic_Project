@@ -6,7 +6,7 @@ tfrecord_dir = os.path.join('artifacts', 'tfrecords_virtualchannels', 'test')
 files = tf.io.gfile.glob(os.path.join(tfrecord_dir, '*.tfrecord'))
 
 # Import the correct parse_fn for 10 channels
-from Scripts.Make_TFRecords_VirtualChannels import parse_fn
+from Scripts.Redundant.Make_TFRecords_VirtualChannels import parse_fn
 
 win_len = 200
 n_channels = 10

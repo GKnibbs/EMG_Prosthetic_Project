@@ -25,7 +25,7 @@ val_ds = get_hybrid_dataset(val_tfrecord_dir, n_features, n_steps, n_temporal_fe
 
 # --- Compute class weights ---
 labels = []
-for (_, _), y, _, _ in train_ds.unbatch().take(100000):
+for (amp, temp), y in train_ds.unbatch().take(100000):
     labels.append(y.numpy())
 labels = np.array(labels)
 class_counts = np.bincount(labels, minlength=num_classes)

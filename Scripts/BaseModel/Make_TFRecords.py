@@ -4,8 +4,9 @@ import numpy as np
 import tensorflow as tf
 import json
 import argparse
-from Scripts.Dataset_Windows import load_windows_streaming
-from Scripts.Utils_Scaling import apply_median_iqr
+from Scripts.BaseModel.Dataset_Windows import load_windows_streaming
+from Scripts.Utils_Config.Utils_Features import extract_emg_features, extract_temporal_features
+from Scripts.Utils_Config.Utils_Scaling import apply_median_iqr
 
 # Make_TFRecords.py: Streams windows, applies robust scaling, writes TFRecords for fast TF/Keras input
 # Each TFRecord contains: window (float32, [win,4]), label (int8), subject_id (int8), start_sample (int64)
@@ -37,10 +38,12 @@ for split, path in SPLIT_IDS.items():
         split_subjects[split] = set(int(line.strip()) for line in f if line.strip())
 
 # --- Helper: TFRecord serialization ---
-def serialize_example(window, label, subject_id, start_sample):
+def serialize_example(amplitude_features, temporal_features, window, label, subject_id, start_sample):
     # Serialize window as raw float32 bytes
     window_bytes = window.astype(np.float32).tobytes()
     feature = {
+        'amplitude_features': tf.train.Feature(float_list=tf.train.FloatList(value=amplitude_features)),
+        'temporal_features': tf.train.Feature(float_list=tf.train.FloatList(value=temporal_features.flatten())),
         'window': tf.train.Feature(bytes_list=tf.train.BytesList(value=[window_bytes])),
         'label': tf.train.Feature(int64_list=tf.train.Int64List(value=[int(label)])),
         'subject_id': tf.train.Feature(int64_list=tf.train.Int64List(value=[int(subject_id)])),
@@ -75,8 +78,12 @@ def write_tfrecords(split):
             # Apply robust scaling
             window_scaled = apply_median_iqr(window, med, iqr)
             label = gesture_to_id(gesture)
+            # Extract amplitude features (full window)
+            amplitude_features = extract_emg_features(window_scaled)  # shape: [60]
+            # Extract temporal features (4x25ms blocks)
+            temporal_features = extract_temporal_features(window_scaled, fs=2000, n_steps=4)  # shape: [4, 60]
             # Serialize example
-            example = serialize_example(window_scaled, label, subject_id, start)
+            example = serialize_example(amplitude_features, temporal_features, window_scaled, label, subject_id, start)
             # Shard by ~100MB
             if writer is None or n_bytes > SHARD_SIZE_MB * 1024 * 1024:
                 if writer:
